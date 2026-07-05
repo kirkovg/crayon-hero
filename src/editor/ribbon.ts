@@ -1,6 +1,6 @@
 import { Skia, type SkPath } from '@shopify/react-native-skia';
 
-// A sampled stroke point with a per-point half-width (from speed).
+// A sampled stroke point with a per-point half-width (derived from speed).
 export type Pt = { x: number; y: number; w: number };
 
 // Builds a variable-width "ribbon" polygon from the sampled points.

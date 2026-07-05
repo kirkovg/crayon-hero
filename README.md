@@ -6,68 +6,59 @@ A premium, realistic crayon-drawing app for kids (iOS + Android).
 
 ---
 
-## Phase 0 — Crayon-stroke spike (current state)
+## Current state — Phase 1: MVP editor & core loop
 
-This repo currently contains **only the Phase 0 spike**: a throwaway screen whose job is to
-prove the crayon *feel* on a real device before we build the app around it. Everything lives
-in [`src/spike/`](./src/spike).
+The app now has a real navigable shell around the (Phase-0-validated) crayon engine.
 
-**What the spike does**
-- A warm "paper" canvas you draw on with your finger.
-- Variable-width **ribbon** strokes: move slow → thick & dense, move fast → thin & sketchy.
-- A **paper-tooth grain shader** (SkSL) gives the broken, waxy crayon texture.
-- **Multiply blending** so overlapping strokes build up like real wax.
-- A floating **crayon tray** (tap to select; the crayon slides out) + eraser, undo, clear.
-- A light **haptic tick** on touch-down and on crayon selection.
-- A live **fps meter** (top-right) to check the 60/120 fps exit gate on-device.
+**Screens** (`src/screens/`)
+- **Home** — greeting + entries: **Free Draw**, Draw Something (Phase 2, disabled), **My Gallery**, **Settings**.
+- **Editor** — the heart:
+  - realistic paper + the crayon engine (velocity-driven grainy ribbons, multiply wax layering);
+  - floating **crayon tray** (collapsible, left/right per settings) with **10 colors**, **3 thicknesses**, and an **eraser**;
+  - **toolbar**: undo, redo, clear (with confirm), and **save**;
+  - a small live **fps meter**.
+- **Gallery** — grid of saved drawings; tap to open.
+- **Artwork viewer** — full-screen view + delete.
+- **Settings** — artist name & avatar color, crayon-tray side (handedness), haptics toggle, sound toggle (disabled — not wired yet).
+
+**How saving works:** the Skia canvas is snapshotted (`makeImageSnapshot` → JPEG) and stored as a
+data-URI in **AsyncStorage** (`src/storage/gallery.ts`). This is a deliberate Expo-Go-friendly
+choice; it'll be swapped for real `expo-file-system` PNG files + thumbnails once we move to a dev build.
+
+**Architecture** (`src/`): `editor/` (canvas, tray, toolbar, shader, ribbon, palette), `screens/`,
+`navigation/` (React Navigation native-stack), `state/` (Zustand + AsyncStorage settings), `storage/`,
+`feedback/` (haptics). The drawing hot-path stays on the UI thread; React state only changes on stroke-commit.
 
 **Stack:** Expo SDK 54 · React Native 0.81 (New Architecture) · `@shopify/react-native-skia` 2.2 ·
-`react-native-reanimated` 4 · `react-native-gesture-handler` · `expo-haptics`.
+`react-native-reanimated` 4.1.1 / `react-native-worklets` 0.5.1 (pinned to match Expo Go 54) ·
+`react-native-gesture-handler` · React Navigation 7 · Zustand · AsyncStorage · `expo-haptics`.
 
-> **Why SDK 54 and not the newest (57)?** The public App Store **Expo Go only runs its single
-> latest SDK, which is currently 54** (`expoGoSdkVersion` in Expo's version API). Pinning to 54
-> lets us run on a physical iPhone via a QR code with **no Xcode**. We'll bump back to the latest
-> SDK once we move to a real development build (see below).
-
-The drawing hot-path never touches React: the active stroke is a Reanimated shared value
-rendered by Skia on the UI thread; React state only updates when a stroke is committed
-(finger up). See [`docs/BUILD_PLAN.md`](./docs/BUILD_PLAN.md) for the architecture rules.
+> **Why SDK 54?** The public App Store Expo Go runs only its single latest SDK (currently 54), which
+> lets us test on a physical iPhone via QR with **no Xcode**. Bump to the latest SDK when we move to a
+> real dev build. Don't bump reanimated/worklets while on Expo Go (breaks with "reanimated is not installed").
 
 ---
 
 ## Running it on your iPhone (no Xcode)
 
-Skia, Reanimated, and Gesture Handler are all **bundled into Expo Go**, so the spike runs there
-directly — no native build required.
+1. Install **Expo Go** from the App Store.
+2. `npx expo start` (add `--clear` after dependency changes).
+3. Scan the QR with the Camera app → open in Expo Go.
 
-1. Install **Expo Go** from the App Store on your iPhone.
-2. From the project folder:
-   ```sh
-   npx expo start
-   ```
-3. Open the **Camera** app, scan the QR code in the terminal, and tap the banner to open in Expo Go.
-
-Hot-reload works: save a file and the phone updates.
-
-> If Expo Go ever reports an SDK mismatch again, it means the public Expo Go moved to a newer
-> SDK — re-check `expoGoSdkVersion` at `https://exp.host/--/api/v2/versions` and re-pin.
-
-### Later: real development build (needed for Apple Pencil, App Store, latest SDK)
-This needs **full Xcode**, which on this Mac requires upgrading **macOS to 26.2+** first (currently
-15.6). Then: `brew install cocoapods watchman` → `npx expo run:ios --device`. The cloud
-alternative (`eas build` / `eas go`) needs a paid Apple Developer account for device provisioning.
+### Later: real dev build (Apple Pencil, App Store, latest SDK)
+Needs full Xcode → requires upgrading **macOS to 26.2+** first (currently 15.6), then
+`brew install cocoapods watchman` → `npx expo run:ios --device`.
 
 ---
 
-## What to look for (Phase 0 exit gate)
-- Drawing feels like **pressing a crayon into paper** — grainy, with speed changing the weight of the line.
-- The **fps meter holds ~120** while scribbling fast (no stutter).
-- Selecting crayons and the touch-down tick feel tactile, not gimmicky.
+## What to test in Phase 1
+- **Free Draw → draw → Save → it shows up in Gallery → open it → delete it.** The full loop.
+- Tray: switch colors, thickness (thin/normal/chunky), eraser, collapse/expand.
+- Undo / redo / clear.
+- Settings: change tray side (left/right), toggle haptics, set name/avatar → persists across relaunch.
+- Perf: fps holds while scribbling; large drawings still smooth.
 
-If that "wow" lands, the stack is validated. If not, we revisit rendering before building further.
-
-## Not yet in the spike (deliberately deferred)
-- **Apple Pencil** force + tilt (needs an iPad + a thin Swift module + a dev build — can't test on iPhone).
-- **Android** performance profiling (needs a flagship Android).
-- **Crayon sound** (scratch loop that tracks speed — needs an audio asset).
-- Offscreen "baking" of finished strokes, save/gallery, and everything from Phase 1 onward.
+## Deliberately deferred (later phases)
+- **Draw Mode** + subjects + scoring (Phase 2), accounts/cloud/subscription (Phase 3).
+- **Apple Pencil** force+tilt, **crayon sound**, offscreen stroke-baking, zoom/pan, color-bucket fill,
+  real file storage (expo-file-system) + thumbnails, onboarding.

@@ -1,21 +1,27 @@
 import 'react-native-gesture-handler';
+import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import CrayonSpikeScreen from './src/spike/CrayonSpikeScreen';
+import RootStack from './src/navigation/RootStack';
+import { useAppStore } from './src/state/useAppStore';
 
-// Crayon Hero — Phase 0 spike.
-// A throwaway screen whose only job is to prove the crayon "feel" on-device.
 export default function App() {
+  const hydrate = useAppStore((s) => s.hydrate);
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
+
   return (
-    <GestureHandlerRootView style={styles.root}>
-      <CrayonSpikeScreen />
-      <StatusBar style="dark" />
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <RootStack />
+        </NavigationContainer>
+        <StatusBar style="dark" />
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1 },
-});

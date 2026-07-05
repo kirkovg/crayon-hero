@@ -49,6 +49,7 @@ Every phase ends in a **shippable** build. Gates are go/no-go checkpoints.
 
 ### Phase 1 — MVP Editor & core loop (the product's heart)
 **Goal:** a kid can open the app and joyfully free-draw with realistic crayons, then save it.
+**Status:** 🚧 Implemented, pending on-device test. Navigable app (Home / Editor / Gallery / Artwork viewer / Settings) around the crayon engine; tray with 10 colors + 3 thicknesses + eraser (collapsible, handedness), undo/redo/clear/save, local gallery + viewer, settings (name, avatar, tray side, haptics), Zustand + AsyncStorage persistence. Typecheck + iOS bundle pass. **Adaptations for Expo Go:** artwork saved as JPEG data-URIs in AsyncStorage (not MMKV/expo-file-system — those need a dev build). **Deferred within Phase 1:** real crayon sound, zoom/pan, color-bucket fill, offscreen stroke-baking, thumbnail downscaling, onboarding.
 - **Editor screen:** realistic paper (grain texture, shadow); **floating crayon tray** (physical crayon box, open/close, left/right); crayon selection with lift/tilt animation.
 - **Tools:** crayon (thickness variants), eraser, undo/redo (stroke stack + offscreen snapshots), clear (confirm), color-bucket fill, zoom/pan mode, lock-paper, palm rejection.
 - **Save:** `SkImage` snapshot → PNG + thumbnail to local storage.

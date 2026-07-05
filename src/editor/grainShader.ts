@@ -1,8 +1,8 @@
 // Paper-tooth grain shader (SkSL) for the crayon look.
 //
-// The grain is a function of canvas-space coordinates, so it stays fixed
-// relative to the "paper" — exactly like real crayon wax catching on the
-// tooth of the paper. `u_grain` controls how broken/textured the coverage is.
+// Grain is a function of canvas-space coordinates, so it stays fixed relative to
+// the "paper" — like real crayon wax catching on the tooth of the paper.
+// `u_grain` controls how broken/textured the coverage is.
 export const GRAIN_SRC = `
 uniform float4 u_color;
 uniform float  u_grain;

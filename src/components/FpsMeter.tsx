@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { runOnJS, useFrameCallback, useSharedValue } from 'react-native-reanimated';
 
-// Measures UI-thread frame rate (the number that actually matters for drawing).
-// Validates the "consistent 60 / 120 fps" Phase 0 exit gate on-device.
+// Measures UI-thread frame rate (the number that matters for drawing).
 export default function FpsMeter() {
   const [fps, setFps] = useState(0);
   const frames = useSharedValue(0);
@@ -36,9 +35,9 @@ export default function FpsMeter() {
 const styles = StyleSheet.create({
   box: {
     backgroundColor: 'rgba(0,0,0,0.06)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 9,
   },
-  txt: { fontSize: 13, fontWeight: '700', color: '#2B2D42', fontVariant: ['tabular-nums'] },
+  txt: { fontSize: 11, fontWeight: '700', color: '#2B2D42', fontVariant: ['tabular-nums'] },
 });

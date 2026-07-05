@@ -1,9 +1,9 @@
-// Crayon palette + paint styling for the Phase 0 spike.
+// Crayon palette, thicknesses, and paint styling for the editor.
 
 export type Crayon = { id: string; name: string; hex: string; erase?: boolean };
-
 export type BlendName = 'multiply' | 'srcOver';
 export type PaintStyle = { color: number[]; grain: number; blend: BlendName };
+export type Thickness = { id: string; label: string; scale: number };
 
 // Warm off-white "paper" tone.
 export const PAPER = '#F7F1E3';
@@ -23,6 +23,12 @@ export const CRAYONS: Crayon[] = [
 
 export const ERASER: Crayon = { id: 'eraser', name: 'Eraser', hex: PAPER, erase: true };
 
+export const THICKNESSES: Thickness[] = [
+  { id: 'thin', label: 'Thin', scale: 0.6 },
+  { id: 'normal', label: 'Normal', scale: 1 },
+  { id: 'chunky', label: 'Chunky', scale: 1.7 },
+];
+
 export function hexToRgb01(hex: string): [number, number, number] {
   const h = hex.replace('#', '');
   const r = parseInt(h.substring(0, 2), 16) / 255;
@@ -31,7 +37,6 @@ export function hexToRgb01(hex: string): [number, number, number] {
   return [r, g, b];
 }
 
-// Maps a crayon to the shader/paint settings used to render its strokes.
 export function styleFor(c: Crayon): PaintStyle {
   if (c.erase) {
     const [r, g, b] = hexToRgb01(PAPER);
