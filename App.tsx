@@ -7,12 +7,15 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import RootStack from './src/navigation/RootStack';
 import { useAppStore } from './src/state/useAppStore';
+import { useProgress } from './src/state/useProgress';
 
 export default function App() {
   const hydrate = useAppStore((s) => s.hydrate);
+  const hydrateProgress = useProgress((s) => s.hydrate);
   useEffect(() => {
     hydrate();
-  }, [hydrate]);
+    hydrateProgress();
+  }, [hydrate, hydrateProgress]);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

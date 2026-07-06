@@ -7,10 +7,12 @@ type Props = {
   onUndo: () => void;
   onRedo: () => void;
   onClear: () => void;
-  onSave: () => void;
+  onPrimary: () => void;
+  primaryLabel: string;
+  primaryGlyph: string;
   canUndo: boolean;
   canRedo: boolean;
-  canSave: boolean;
+  canPrimary: boolean;
   center?: ReactNode;
 };
 
@@ -45,10 +47,12 @@ export default function Toolbar({
   onUndo,
   onRedo,
   onClear,
-  onSave,
+  onPrimary,
+  primaryLabel,
+  primaryGlyph,
   canUndo,
   canRedo,
-  canSave,
+  canPrimary,
   center,
 }: Props) {
   const insets = useSafeAreaInsets();
@@ -64,7 +68,7 @@ export default function Toolbar({
         <TBtn label="Undo" glyph="↶" onPress={onUndo} disabled={!canUndo} />
         <TBtn label="Redo" glyph="↷" onPress={onRedo} disabled={!canRedo} />
         <TBtn label="Clear" glyph="🗑" onPress={onClear} disabled={!canUndo} />
-        <TBtn label="Save" glyph="💾" onPress={onSave} disabled={!canSave} primary />
+        <TBtn label={primaryLabel} glyph={primaryGlyph} onPress={onPrimary} disabled={!canPrimary} primary />
       </View>
     </View>
   );

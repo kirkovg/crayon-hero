@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { tick } from '../feedback/haptics';
 import type { ScreenProps } from '../navigation/types';
 import { useAppStore } from '../state/useAppStore';
+import { levelForPoints, useProgress } from '../state/useProgress';
 
 function BigCard({
   title,
@@ -44,9 +45,21 @@ function SmallCard({ title, emoji, onPress }: { title: string; emoji: string; on
   );
 }
 
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.stat}>
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </View>
+  );
+}
+
 export default function HomeScreen({ navigation }: ScreenProps<'Home'>) {
   const name = useAppStore((s) => s.name);
   const avatarColor = useAppStore((s) => s.avatarColor);
+  const points = useProgress((s) => s.points);
+  const streak = useProgress((s) => s.streak);
+  const level = levelForPoints(points);
 
   const go = (fn: () => void) => {
     tick();
@@ -65,6 +78,12 @@ export default function HomeScreen({ navigation }: ScreenProps<'Home'>) {
         </View>
       </View>
 
+      <View style={styles.stats}>
+        <Stat label="Level" value={`${level}`} />
+        <Stat label="Points" value={`${points}`} />
+        <Stat label="Streak" value={streak > 0 ? `${streak} 🔥` : '—'} />
+      </View>
+
       <View style={styles.cards}>
         <BigCard
           title="Free Draw"
@@ -73,7 +92,13 @@ export default function HomeScreen({ navigation }: ScreenProps<'Home'>) {
           color="#3FA34D"
           onPress={() => go(() => navigation.navigate('Editor', { mode: 'free' }))}
         />
-        <BigCard title="Draw Something" subtitle="Coming soon" emoji="🐱" color="#C9BCA6" disabled />
+        <BigCard
+          title="Draw Something"
+          subtitle="Color & draw — earn stars!"
+          emoji="🐱"
+          color="#F2A65A"
+          onPress={() => go(() => navigation.navigate('DrawCategory'))}
+        />
         <View style={styles.row}>
           <SmallCard title="My Gallery" emoji="🖼️" onPress={() => go(() => navigation.navigate('Gallery'))} />
           <SmallCard title="Settings" emoji="⚙️" onPress={() => go(() => navigation.navigate('Settings'))} />
@@ -87,11 +112,26 @@ export default function HomeScreen({ navigation }: ScreenProps<'Home'>) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#F7F1E3', paddingHorizontal: 20 },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 12, marginBottom: 26 },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 12, marginBottom: 16 },
   avatar: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' },
   avatarTxt: { fontSize: 26 },
   hi: { fontSize: 24, fontWeight: '800', color: '#2B2D42' },
   sub: { fontSize: 15, color: '#7A6F5D', marginTop: 2 },
+  stats: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    paddingVertical: 14,
+    marginBottom: 22,
+    shadowColor: '#000',
+    shadowOpacity: 0.07,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  stat: { flex: 1, alignItems: 'center' },
+  statValue: { fontSize: 20, fontWeight: '800', color: '#2B2D42' },
+  statLabel: { fontSize: 12, color: '#7A6F5D', fontWeight: '700', marginTop: 2 },
   cards: { gap: 14 },
   big: {
     flexDirection: 'row',

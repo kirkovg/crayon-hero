@@ -6,9 +6,25 @@ A premium, realistic crayon-drawing app for kids (iOS + Android).
 
 ---
 
-## Current state — Phase 1: MVP editor & core loop
+## Current state — Phase 2: Draw Mode, subjects, scoring & progression
 
-The app now has a real navigable shell around the (Phase-0-validated) crayon engine.
+Phases 0–1 are done (crayon feel + navigable MVP editor). Phase 2 adds the **game**:
+- **Draw Mode**: Home → *Draw Something* → category (household / flora / fauna) → subject → the
+  editor with the subject shown, a **Color It / Draw It** toggle, and a reference chip. Tap **Done**
+  to get scored.
+- **9 programmatic vector subjects** (`src/subjects/`) — no art pipeline yet; real illustrated art
+  swaps in later behind the same `Region` data model.
+- **Scoring** (`src/scoring/score.ts`): the drawing + the target are rasterized to 96×96 (Skia
+  offscreen surfaces + `readPixels`) and compared on **coverage / color-match / staying-in-lines** →
+  forgiving **1–3 stars + points**. It never hard-fails (gentle fallback on any error).
+- **Progression** (`src/state/useProgress.ts`): points, level, best-stars per subject, and a
+  day-streak, persisted. Home shows level / points / streak.
+
+Below: the Phase 1 foundation it builds on.
+
+## Phase 1 foundation — MVP editor & core loop
+
+The app has a navigable shell around the (Phase-0-validated) crayon engine.
 
 **Screens** (`src/screens/`)
 - **Home** — greeting + entries: **Free Draw**, Draw Something (Phase 2, disabled), **My Gallery**, **Settings**.
@@ -51,7 +67,15 @@ Needs full Xcode → requires upgrading **macOS to 26.2+** first (currently 15.6
 
 ---
 
-## What to test in Phase 1
+## What to test
+**Phase 2 (new):**
+- **Draw Something → pick a category → pick a subject → color inside the outline → Done → Score.**
+  The full game loop. Try to color it well vs. scribble randomly and confirm the **stars/points differ**.
+- Color It (outline) vs Draw It (guide) toggle; the reference chip.
+- Score screen: stars, points, the three bars, **Try again** and **Done**.
+- Home **level / points / streak** update after scoring and persist across relaunch.
+
+**Phase 1 (foundation):**
 - **Free Draw → draw → Save → it shows up in Gallery → open it → delete it.** The full loop.
 - Tray: switch colors, thickness (thin/normal/chunky), eraser, collapse/expand.
 - Undo / redo / clear.
