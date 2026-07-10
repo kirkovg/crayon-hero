@@ -10,6 +10,7 @@ export type Subject = {
   name: string;
   category: CategoryId;
   regions: Region[];
+  premium?: boolean;
 };
 
 export const CATEGORIES: { id: CategoryId; name: string; emoji: string; color: string }[] = [
@@ -78,6 +79,7 @@ export const SUBJECTS: Subject[] = [
     id: 'leaf',
     name: 'Leaf',
     category: 'flora',
+    premium: true,
     regions: [
       { build: () => oval(0.5, 0.46, 0.2, 0.32), color: '#3FA34D' },
       { build: () => rect(0.485, 0.6, 0.03, 0.3), color: '#2A7D3A' },
@@ -110,6 +112,7 @@ export const SUBJECTS: Subject[] = [
     id: 'ladybug',
     name: 'Ladybug',
     category: 'fauna',
+    premium: true,
     regions: [
       { build: () => circle(0.5, 0.53, 0.28), color: '#E4572E' },
       { build: () => circle(0.5, 0.28, 0.11), color: '#2B2D42' },

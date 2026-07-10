@@ -66,8 +66,15 @@ Every phase ends in a **shippable** build. Gates are go/no-go checkpoints.
 - **Progression:** points, levels, daily streaks, badges, unlock economy (crayons/paper/subjects by progress). Rewards screen.
 - **Exit gate:** a kid can pick a subject, color/draw it, and get celebrated with stars/points; progression persists.
 
-### Phase 3 — Accounts, cloud & monetization (the business)
+### Phase 3 — Monetization & parent controls (the business)
 **Goal:** a monetizable, compliant app.
+**Revised decisions (2026-07):** **cloud accounts scrapped** — the app is fully **local-first** (no Firebase, no login, strongest privacy story). Monetization = a **store-managed subscription** (Apple/Google + RevenueCat later; needs no backend/accounts of our own) with **zero ads** (ads rejected — behavioral ads to under-13s are effectively barred by COPPA/GDPR-K and by Apple Kids / Google Play Families policies).
+**Status:** 🚧 Implemented (Expo Go slice), pending on-device test. Parental gate (press-and-hold), **Parent Zone** (subscription status, restore, privacy: export + delete-all-data), **Paywall** (subscription framing), a **mock entitlements store** (`useEntitlements` — swap for RevenueCat in a dev build; the rest of the app only reads `premium`), and premium gating on 2 demo subjects (lock badge → paywall; toggle premium in Parent Zone to unlock). Typecheck + iOS bundle pass. **Deferred to a dev build:** real RevenueCat purchases (native module + App Store Connect / Play products).
+
+### Cross-cutting polish (added 2026-07, alongside Phase 3)
+- **Fonts:** Fredoka (rounded, kid-friendly) via `@expo-google-fonts/fredoka`, applied through a drop-in `AppText` (`src/ui/AppText.tsx`).
+- **Icons:** replaced UI emojis with **Ionicons** (`@expo/vector-icons`) via `src/ui/Icon.tsx` (celebration emojis remain in localized reward copy).
+- **i18n:** English / German / French / Spanish (`src/i18n/`, `i18n-js` + `expo-localization`); `useT()` hook, device-locale default, language picker in Settings. All user-facing strings + subject/category names translated.
 - **Parent account** (Firebase Auth) behind a **parental gate**.
 - **Cloud backup + cross-device gallery** (Firestore metadata + Cloud Storage), COPPA-safe Firebase config.
 - **Subscription via RevenueCat:** entitlements, free-vs-premium gating (subject packs, crayon/paper sets, unlimited saves, cloud features), **paywall behind parental gate**, free trial.

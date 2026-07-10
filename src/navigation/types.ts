@@ -16,6 +16,8 @@ export type RootStackParamList = {
   Gallery: undefined;
   ArtworkViewer: { id: string };
   Settings: undefined;
+  ParentZone: undefined;
+  Paywall: undefined;
 };
 
 export type ScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<

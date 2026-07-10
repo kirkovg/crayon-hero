@@ -1,60 +1,63 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { tick } from '../feedback/haptics';
+import { useT } from '../i18n';
 import type { ScreenProps } from '../navigation/types';
 import { useAppStore } from '../state/useAppStore';
 import { levelForPoints, useProgress } from '../state/useProgress';
+import { AppText } from '../ui/AppText';
+import { Icon, type IconName } from '../ui/Icon';
 
 function BigCard({
   title,
   subtitle,
-  emoji,
+  icon,
   color,
   onPress,
-  disabled,
 }: {
   title: string;
   subtitle: string;
-  emoji: string;
+  icon: IconName;
   color: string;
-  onPress?: () => void;
-  disabled?: boolean;
+  onPress: () => void;
 }) {
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      style={[styles.big, { backgroundColor: color }, disabled && styles.disabled]}
-    >
-      <Text style={styles.bigEmoji}>{emoji}</Text>
+    <Pressable onPress={onPress} style={[styles.big, { backgroundColor: color }]}>
+      <View style={styles.bigIcon}>
+        <Icon name={icon} size={34} color="#fff" />
+      </View>
       <View style={{ flex: 1 }}>
-        <Text style={styles.bigTitle}>{title}</Text>
-        <Text style={styles.bigSub}>{subtitle}</Text>
+        <AppText style={styles.bigTitle}>{title}</AppText>
+        <AppText style={styles.bigSub}>{subtitle}</AppText>
       </View>
     </Pressable>
   );
 }
 
-function SmallCard({ title, emoji, onPress }: { title: string; emoji: string; onPress: () => void }) {
+function SmallCard({ title, icon, onPress }: { title: string; icon: IconName; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} style={styles.small}>
-      <Text style={styles.smallEmoji}>{emoji}</Text>
-      <Text style={styles.smallTitle}>{title}</Text>
+      <Icon name={icon} size={28} color="#4062BB" />
+      <AppText style={styles.smallTitle}>{title}</AppText>
     </Pressable>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, flame }: { label: string; value: string; flame?: boolean }) {
   return (
     <View style={styles.stat}>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
+      <View style={styles.statValueRow}>
+        <AppText style={styles.statValue}>{value}</AppText>
+        {flame ? <Icon name="flame" size={18} color="#F2A65A" /> : null}
+      </View>
+      <AppText style={styles.statLabel}>{label}</AppText>
     </View>
   );
 }
 
 export default function HomeScreen({ navigation }: ScreenProps<'Home'>) {
+  const t = useT();
   const name = useAppStore((s) => s.name);
   const avatarColor = useAppStore((s) => s.avatarColor);
   const points = useProgress((s) => s.points);
@@ -70,42 +73,42 @@ export default function HomeScreen({ navigation }: ScreenProps<'Home'>) {
     <SafeAreaView style={styles.root}>
       <View style={styles.header}>
         <View style={[styles.avatar, { backgroundColor: avatarColor }]}>
-          <Text style={styles.avatarTxt}>🎨</Text>
+          <Icon name="color-palette" size={28} color="#fff" />
         </View>
         <View>
-          <Text style={styles.hi}>Hi, {name}!</Text>
-          <Text style={styles.sub}>What do you want to make?</Text>
+          <AppText style={styles.hi}>{t('home.greeting', { name })}</AppText>
+          <AppText style={styles.sub}>{t('home.prompt')}</AppText>
         </View>
       </View>
 
       <View style={styles.stats}>
-        <Stat label="Level" value={`${level}`} />
-        <Stat label="Points" value={`${points}`} />
-        <Stat label="Streak" value={streak > 0 ? `${streak} 🔥` : '—'} />
+        <Stat label={t('home.level')} value={`${level}`} />
+        <Stat label={t('home.points')} value={`${points}`} />
+        <Stat label={t('home.streak')} value={streak > 0 ? `${streak}` : '—'} flame={streak > 0} />
       </View>
 
       <View style={styles.cards}>
         <BigCard
-          title="Free Draw"
-          subtitle="Blank paper — draw anything!"
-          emoji="✏️"
+          title={t('home.freeDraw')}
+          subtitle={t('home.freeDrawSub')}
+          icon="create"
           color="#3FA34D"
           onPress={() => go(() => navigation.navigate('Editor', { mode: 'free' }))}
         />
         <BigCard
-          title="Draw Something"
-          subtitle="Color & draw — earn stars!"
-          emoji="🐱"
+          title={t('home.drawSomething')}
+          subtitle={t('home.drawSomethingSub')}
+          icon="color-palette"
           color="#F2A65A"
           onPress={() => go(() => navigation.navigate('DrawCategory'))}
         />
         <View style={styles.row}>
-          <SmallCard title="My Gallery" emoji="🖼️" onPress={() => go(() => navigation.navigate('Gallery'))} />
-          <SmallCard title="Settings" emoji="⚙️" onPress={() => go(() => navigation.navigate('Settings'))} />
+          <SmallCard title={t('home.gallery')} icon="images" onPress={() => go(() => navigation.navigate('Gallery'))} />
+          <SmallCard title={t('home.settings')} icon="settings-sharp" onPress={() => go(() => navigation.navigate('Settings'))} />
         </View>
       </View>
 
-      <Text style={styles.footer}>Crayon Hero</Text>
+      <AppText style={styles.footer}>Crayon Hero</AppText>
     </SafeAreaView>
   );
 }
@@ -114,7 +117,6 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#F7F1E3', paddingHorizontal: 20 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 12, marginBottom: 16 },
   avatar: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' },
-  avatarTxt: { fontSize: 26 },
   hi: { fontSize: 24, fontWeight: '800', color: '#2B2D42' },
   sub: { fontSize: 15, color: '#7A6F5D', marginTop: 2 },
   stats: {
@@ -130,6 +132,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   stat: { flex: 1, alignItems: 'center' },
+  statValueRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   statValue: { fontSize: 20, fontWeight: '800', color: '#2B2D42' },
   statLabel: { fontSize: 12, color: '#7A6F5D', fontWeight: '700', marginTop: 2 },
   cards: { gap: 14 },
@@ -145,8 +148,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
   },
-  disabled: { opacity: 0.6 },
-  bigEmoji: { fontSize: 40 },
+  bigIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   bigTitle: { fontSize: 22, fontWeight: '800', color: '#fff' },
   bigSub: { fontSize: 14, color: 'rgba(255,255,255,0.9)', marginTop: 2 },
   row: { flexDirection: 'row', gap: 14 },
@@ -163,7 +172,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     elevation: 3,
   },
-  smallEmoji: { fontSize: 30 },
   smallTitle: { fontSize: 15, fontWeight: '700', color: '#2B2D42' },
   footer: { marginTop: 'auto', textAlign: 'center', color: 'rgba(43,45,66,0.35)', fontWeight: '700', paddingBottom: 8 },
 });

@@ -1,5 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getLocales } from 'expo-localization';
 import { create } from 'zustand';
+
+import { SUPPORTED_LANGUAGES, type Language } from '../i18n/translations';
 
 export type Handedness = 'left' | 'right';
 
@@ -9,6 +12,7 @@ type Persisted = {
   sound: boolean;
   name: string;
   avatarColor: string;
+  language: Language;
 };
 
 type AppState = Persisted & {
@@ -19,12 +23,22 @@ type AppState = Persisted & {
 
 const KEY = 'crayonhero.settings.v1';
 
+function deviceLanguage(): Language {
+  try {
+    const code = getLocales()[0]?.languageCode ?? 'en';
+    return (SUPPORTED_LANGUAGES as readonly string[]).includes(code) ? (code as Language) : 'en';
+  } catch {
+    return 'en';
+  }
+}
+
 const DEFAULTS: Persisted = {
   handedness: 'right',
   haptics: true,
   sound: false, // sound not wired yet (no audio asset) — see BUILD_PLAN
   name: 'Little Artist',
   avatarColor: '#F6C90E',
+  language: deviceLanguage(),
 };
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -48,6 +62,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       sound: s.sound,
       name: s.name,
       avatarColor: s.avatarColor,
+      language: s.language,
     };
     AsyncStorage.setItem(KEY, JSON.stringify(persisted)).catch(() => {});
   },

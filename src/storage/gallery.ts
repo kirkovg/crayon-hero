@@ -46,3 +46,8 @@ export async function deleteArtwork(id: string): Promise<void> {
   await AsyncStorage.multiRemove([imgKey(id)]);
   await AsyncStorage.setItem(INDEX_KEY, JSON.stringify(index.filter((m) => m.id !== id)));
 }
+
+export async function clearAllArtworks(): Promise<void> {
+  const index = await readIndex();
+  await AsyncStorage.multiRemove([INDEX_KEY, ...index.map((m) => imgKey(m.id))]);
+}

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { ImageFormat, useCanvasRef } from '@shopify/react-native-skia';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -10,6 +10,7 @@ import Toolbar from '../editor/Toolbar';
 import { CRAYONS, ERASER, THICKNESSES, styleFor, type Crayon } from '../editor/palette';
 import type { Stroke } from '../editor/types';
 import { success, tick } from '../feedback/haptics';
+import { useT } from '../i18n';
 import type { ScreenProps } from '../navigation/types';
 import { scoreDrawing } from '../scoring/score';
 import { useAppStore } from '../state/useAppStore';
@@ -17,8 +18,10 @@ import { useProgress } from '../state/useProgress';
 import { saveArtwork } from '../storage/gallery';
 import { getSubject } from '../subjects/catalog';
 import { SubjectCanvas } from '../subjects/SubjectRenderer';
+import { AppText } from '../ui/AppText';
 
 export default function EditorScreen({ route, navigation }: ScreenProps<'Editor'>) {
+  const t = useT();
   const params = route.params;
   const subject = params.mode === 'draw' ? getSubject(params.subjectId) : undefined;
   const isDraw = params.mode === 'draw' && !!subject;
@@ -47,7 +50,7 @@ export default function EditorScreen({ route, navigation }: ScreenProps<'Editor'
   );
   const activeStyle = useMemo(() => styleFor(current), [current]);
   const thicknessScale = useMemo(
-    () => THICKNESSES.find((t) => t.id === thicknessId)?.scale ?? 1,
+    () => THICKNESSES.find((tt) => tt.id === thicknessId)?.scale ?? 1,
     [thicknessId],
   );
 
@@ -96,36 +99,36 @@ export default function EditorScreen({ route, navigation }: ScreenProps<'Editor'
   }, []);
   const clear = useCallback(() => {
     if (!strokes.length) return;
-    Alert.alert('Clear the page?', 'This erases your whole drawing.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Clear', style: 'destructive', onPress: () => { setStrokes([]); setRedo([]); } },
+    Alert.alert(t('editor.clearTitle'), t('editor.clearMsg'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('editor.clear'), style: 'destructive', onPress: () => { setStrokes([]); setRedo([]); } },
     ]);
-  }, [strokes.length]);
+  }, [strokes.length, t]);
 
   const save = useCallback(async () => {
     const image = canvasRef.current?.makeImageSnapshot();
     if (!image) {
-      Alert.alert('Hmm', 'Could not save right now.');
+      Alert.alert(t('editor.oops'), t('editor.couldNotSave'));
       return;
     }
     const uri = `data:image/jpeg;base64,${image.encodeToBase64(ImageFormat.JPEG, 85)}`;
     try {
       await saveArtwork(uri);
       success();
-      Alert.alert('Saved! 🎨', 'Your drawing is in the gallery.', [
-        { text: 'Keep drawing', style: 'cancel' },
-        { text: 'Go to gallery', onPress: () => navigation.navigate('Gallery') },
+      Alert.alert(t('editor.savedTitle'), t('editor.savedMsg'), [
+        { text: t('editor.keepDrawing'), style: 'cancel' },
+        { text: t('editor.goToGallery'), onPress: () => navigation.navigate('Gallery') },
       ]);
     } catch {
-      Alert.alert('Hmm', 'Could not save right now.');
+      Alert.alert(t('editor.oops'), t('editor.couldNotSave'));
     }
-  }, [canvasRef, navigation]);
+  }, [canvasRef, navigation, t]);
 
   const finish = useCallback(() => {
     if (!subject) return;
     const image = canvasRef.current?.makeImageSnapshot();
     if (!image) {
-      Alert.alert('Hmm', 'Try that again.');
+      Alert.alert(t('editor.oops'), t('editor.couldNotSave'));
       return;
     }
     const result = scoreDrawing(image, subject, stage, width);
@@ -139,7 +142,7 @@ export default function EditorScreen({ route, navigation }: ScreenProps<'Editor'
       colorMatch: result.colorMatch,
       containment: result.containment,
     });
-  }, [subject, stage, width, canvasRef, award, navigation]);
+  }, [subject, stage, width, canvasRef, award, navigation, t]);
 
   return (
     <View style={styles.root}>
@@ -174,7 +177,7 @@ export default function EditorScreen({ route, navigation }: ScreenProps<'Editor'
         <View style={[styles.refPanel, { bottom: insets.bottom + 14 }]}>
           <SubjectCanvas subject={subject} size={50} mode="filled" paper style={styles.refChip} />
           <View>
-            <Text style={styles.refName}>{subject.name}</Text>
+            <AppText style={styles.refName}>{t(`subjects.${subject.id}`)}</AppText>
             <View style={styles.segment}>
               {(['color', 'draw'] as const).map((m) => (
                 <Pressable
@@ -182,9 +185,9 @@ export default function EditorScreen({ route, navigation }: ScreenProps<'Editor'
                   onPress={() => { tick(); setSubMode(m); }}
                   style={[styles.segBtn, subMode === m && styles.segBtnActive]}
                 >
-                  <Text style={[styles.segTxt, subMode === m && styles.segTxtActive]}>
-                    {m === 'color' ? 'Color It' : 'Draw It'}
-                  </Text>
+                  <AppText style={[styles.segTxt, subMode === m && styles.segTxtActive]}>
+                    {m === 'color' ? t('editor.colorIt') : t('editor.drawIt')}
+                  </AppText>
                 </Pressable>
               ))}
             </View>
@@ -198,8 +201,8 @@ export default function EditorScreen({ route, navigation }: ScreenProps<'Editor'
         onRedo={redoFn}
         onClear={clear}
         onPrimary={isDraw ? finish : save}
-        primaryLabel={isDraw ? 'Done' : 'Save'}
-        primaryGlyph={isDraw ? '✓' : '💾'}
+        primaryLabel={isDraw ? t('editor.done') : t('editor.save')}
+        primaryIcon={isDraw ? 'checkmark' : 'save-outline'}
         canUndo={strokes.length > 0}
         canRedo={redo.length > 0}
         canPrimary={strokes.length > 0}

@@ -1,6 +1,10 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { useT } from '../i18n';
+import { AppText } from '../ui/AppText';
+import { Icon, type IconName } from '../ui/Icon';
 
 type Props = {
   onBack: () => void;
@@ -9,7 +13,7 @@ type Props = {
   onClear: () => void;
   onPrimary: () => void;
   primaryLabel: string;
-  primaryGlyph: string;
+  primaryIcon: IconName;
   canUndo: boolean;
   canRedo: boolean;
   canPrimary: boolean;
@@ -17,14 +21,14 @@ type Props = {
 };
 
 function TBtn({
+  icon,
   label,
-  glyph,
   onPress,
   disabled,
   primary,
 }: {
+  icon: IconName;
   label: string;
-  glyph: string;
   onPress: () => void;
   disabled?: boolean;
   primary?: boolean;
@@ -36,8 +40,8 @@ function TBtn({
       hitSlop={6}
       style={[styles.btn, primary && styles.btnPrimary, disabled && styles.btnDisabled]}
     >
-      <Text style={[styles.glyph, primary && styles.glyphPrimary]}>{glyph}</Text>
-      <Text style={[styles.label, primary && styles.glyphPrimary]}>{label}</Text>
+      <Icon name={icon} size={18} color={primary ? '#fff' : '#2B2D42'} />
+      <AppText style={[styles.label, primary && styles.labelPrimary]}>{label}</AppText>
     </Pressable>
   );
 }
@@ -49,26 +53,28 @@ export default function Toolbar({
   onClear,
   onPrimary,
   primaryLabel,
-  primaryGlyph,
+  primaryIcon,
   canUndo,
   canRedo,
   canPrimary,
   center,
 }: Props) {
+  const t = useT();
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.bar, { paddingTop: insets.top + 6 }]} pointerEvents="box-none">
       <Pressable onPress={onBack} hitSlop={8} style={styles.back}>
-        <Text style={styles.backTxt}>‹ Home</Text>
+        <Icon name="chevron-back" size={18} />
+        <AppText style={styles.backTxt}>{t('common.home')}</AppText>
       </Pressable>
 
       <View style={styles.center}>{center}</View>
 
       <View style={styles.tools}>
-        <TBtn label="Undo" glyph="↶" onPress={onUndo} disabled={!canUndo} />
-        <TBtn label="Redo" glyph="↷" onPress={onRedo} disabled={!canRedo} />
-        <TBtn label="Clear" glyph="🗑" onPress={onClear} disabled={!canUndo} />
-        <TBtn label={primaryLabel} glyph={primaryGlyph} onPress={onPrimary} disabled={!canPrimary} primary />
+        <TBtn icon="arrow-undo" label={t('editor.undo')} onPress={onUndo} disabled={!canUndo} />
+        <TBtn icon="arrow-redo" label={t('editor.redo')} onPress={onRedo} disabled={!canRedo} />
+        <TBtn icon="trash-outline" label={t('editor.clear')} onPress={onClear} disabled={!canUndo} />
+        <TBtn icon={primaryIcon} label={primaryLabel} onPress={onPrimary} disabled={!canPrimary} primary />
       </View>
     </View>
   );
@@ -84,6 +90,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   back: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
     backgroundColor: 'rgba(255,255,255,0.75)',
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -102,7 +111,6 @@ const styles = StyleSheet.create({
   },
   btnPrimary: { backgroundColor: '#3FA34D' },
   btnDisabled: { opacity: 0.4 },
-  glyph: { fontSize: 16, color: '#2B2D42' },
-  glyphPrimary: { color: '#fff' },
   label: { fontSize: 10, fontWeight: '700', color: '#2B2D42', marginTop: 1 },
+  labelPrimary: { color: '#fff' },
 });

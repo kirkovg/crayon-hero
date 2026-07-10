@@ -1,22 +1,18 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { tick } from '../feedback/haptics';
+import { useT } from '../i18n';
 import type { ScreenProps } from '../navigation/types';
 import { getSubject } from '../subjects/catalog';
 import { SubjectCanvas } from '../subjects/SubjectRenderer';
-
-const MESSAGES: Record<number, string> = {
-  3: 'Amazing! 🌟',
-  2: 'Great job! 🎉',
-  1: 'Nice work! 👍',
-  0: "Let's add a bit more!",
-};
+import { AppText } from '../ui/AppText';
+import { Icon } from '../ui/Icon';
 
 function Bar({ label, value }: { label: string; value: number }) {
   return (
     <View style={styles.barRow}>
-      <Text style={styles.barLabel}>{label}</Text>
+      <AppText style={styles.barLabel}>{label}</AppText>
       <View style={styles.barTrack}>
         <View style={[styles.barFill, { width: `${Math.round(Math.max(0, Math.min(1, value)) * 100)}%` }]} />
       </View>
@@ -25,53 +21,44 @@ function Bar({ label, value }: { label: string; value: number }) {
 }
 
 export default function ScoreScreen({ route, navigation }: ScreenProps<'Score'>) {
+  const t = useT();
   const { subjectId, stars, points, coverage, colorMatch, containment } = route.params;
   const subject = getSubject(subjectId);
 
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.card}>
-        {subject ? (
-          <SubjectCanvas subject={subject} size={96} mode="filled" paper style={styles.ref} />
-        ) : null}
+        {subject ? <SubjectCanvas subject={subject} size={96} mode="filled" paper style={styles.ref} /> : null}
 
-        <Text style={styles.message}>{MESSAGES[stars] ?? MESSAGES[1]}</Text>
+        <AppText style={styles.message}>{t(`score.msg${stars}`)}</AppText>
 
         <View style={styles.starsRow}>
           {[1, 2, 3].map((n) => (
-            <Text key={n} style={[styles.star, n <= stars ? styles.starOn : styles.starOff]}>
-              ★
-            </Text>
+            <Icon key={n} name={n <= stars ? 'star' : 'star-outline'} size={44} color={n <= stars ? '#F6C90E' : '#E0D6C6'} />
           ))}
         </View>
 
-        <Text style={styles.points}>+{points} points</Text>
+        <AppText style={styles.points}>{t('score.points', { points })}</AppText>
 
         <View style={styles.bars}>
-          <Bar label="Filled it in" value={coverage} />
-          <Bar label="Right colors" value={colorMatch} />
-          <Bar label="In the lines" value={containment} />
+          <Bar label={t('score.filledIn')} value={coverage} />
+          <Bar label={t('score.rightColors')} value={colorMatch} />
+          <Bar label={t('score.inLines')} value={containment} />
         </View>
       </View>
 
       <View style={styles.actions}>
         <Pressable
           style={[styles.btn, styles.btnSecondary]}
-          onPress={() => {
-            tick();
-            navigation.replace('Editor', { mode: 'draw', subjectId });
-          }}
+          onPress={() => { tick(); navigation.replace('Editor', { mode: 'draw', subjectId }); }}
         >
-          <Text style={styles.btnSecondaryTxt}>Try again</Text>
+          <AppText style={styles.btnSecondaryTxt}>{t('common.tryAgain')}</AppText>
         </Pressable>
         <Pressable
           style={[styles.btn, styles.btnPrimary]}
-          onPress={() => {
-            tick();
-            navigation.popToTop();
-          }}
+          onPress={() => { tick(); navigation.popToTop(); }}
         >
-          <Text style={styles.btnPrimaryTxt}>Done</Text>
+          <AppText style={styles.btnPrimaryTxt}>{t('common.done')}</AppText>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -95,11 +82,8 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   ref: { borderRadius: 16, marginBottom: 4 },
-  message: { fontSize: 24, fontWeight: '800', color: '#2B2D42' },
+  message: { fontSize: 24, fontWeight: '800', color: '#2B2D42', textAlign: 'center' },
   starsRow: { flexDirection: 'row', gap: 6 },
-  star: { fontSize: 44 },
-  starOn: { color: '#F6C90E' },
-  starOff: { color: '#E0D6C6' },
   points: { fontSize: 18, fontWeight: '800', color: '#3FA34D' },
   bars: { alignSelf: 'stretch', gap: 8, marginTop: 8 },
   barRow: { gap: 4 },

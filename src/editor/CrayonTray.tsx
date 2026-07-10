@@ -1,5 +1,6 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import type { Handedness } from '../state/useAppStore';
+import { Icon } from '../ui/Icon';
 import type { Crayon, Thickness } from './palette';
 
 type Props = {
@@ -36,7 +37,7 @@ export default function CrayonTray({
       <View style={[styles.wrap, side === 'right' ? styles.right : styles.left]} pointerEvents="box-none">
         <Pressable onPress={onToggle} style={styles.reopen} hitSlop={8}>
           <View style={[styles.reopenDot, { backgroundColor: selectedHex }]} />
-          <Text style={styles.chev}>{side === 'right' ? '‹' : '›'}</Text>
+          <Icon name={side === 'right' ? 'chevron-back' : 'chevron-forward'} size={22} color="#8A7E6B" />
         </Pressable>
       </View>
     );
@@ -46,7 +47,7 @@ export default function CrayonTray({
     <View style={[styles.wrap, side === 'right' ? styles.right : styles.left]} pointerEvents="box-none">
       <View style={styles.panel}>
         <Pressable onPress={onToggle} style={styles.close} hitSlop={8}>
-          <Text style={styles.chev}>{side === 'right' ? '›' : '‹'}</Text>
+          <Icon name={side === 'right' ? 'chevron-forward' : 'chevron-back'} size={22} color="#8A7E6B" />
         </Pressable>
 
         <View style={styles.thicknessRow}>
@@ -88,7 +89,7 @@ export default function CrayonTray({
 
         <Pressable onPress={() => onSelect(eraser.id)} hitSlop={6} style={styles.slot}>
           <View style={[styles.eraser, selectedId === eraser.id && styles.eraserSelected]}>
-            <Text style={styles.eraserTxt}>⌫</Text>
+            <Icon name="backspace-outline" size={16} color="#6B5B4B" />
           </View>
         </Pressable>
       </View>

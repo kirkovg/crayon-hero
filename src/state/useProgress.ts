@@ -13,6 +13,7 @@ type ProgressState = Persisted & {
   loaded: boolean;
   hydrate: () => Promise<void>;
   award: (subjectId: string, stars: number, points: number) => void;
+  reset: () => void;
 };
 
 const KEY = 'crayonhero.progress.v1';
@@ -59,5 +60,9 @@ export const useProgress = create<ProgressState>((set, get) => ({
     };
     set(next);
     AsyncStorage.setItem(KEY, JSON.stringify(next)).catch(() => {});
+  },
+  reset: () => {
+    set({ ...DEFAULTS });
+    AsyncStorage.setItem(KEY, JSON.stringify(DEFAULTS)).catch(() => {});
   },
 }));

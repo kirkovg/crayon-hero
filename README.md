@@ -6,7 +6,15 @@ A premium, realistic crayon-drawing app for kids (iOS + Android).
 
 ---
 
-## Current state — Phase 2: Draw Mode, subjects, scoring & progression
+## Current state — Phase 3: monetization, parent controls, i18n & polish
+
+Latest additions (all Expo Go-compatible):
+- **Model decided:** **local-first, no cloud accounts**, a **store-managed subscription** (mocked until a dev build), and **zero ads** (barred for a kids' app by COPPA/GDPR-K + store policy).
+- **Parent Zone** (behind a press-and-hold parental gate): subscription status, restore, and privacy controls (**export** + **delete all data**). A mock "premium" toggle stands in for RevenueCat.
+- **Paywall** + premium gating on 2 demo subjects (lock badge → paywall).
+- **Fonts:** Fredoka everywhere (via `AppText`). **Icons:** Ionicons replaced UI emojis. **i18n:** EN / DE / FR / ES with a language picker in Settings (defaults to device locale).
+
+### Phase 2 — the game (below)
 
 Phases 0–1 are done (crayon feel + navigable MVP editor). Phase 2 adds the **game**:
 - **Draw Mode**: Home → *Draw Something* → category (household / flora / fauna) → subject → the
@@ -68,7 +76,13 @@ Needs full Xcode → requires upgrading **macOS to 26.2+** first (currently 15.6
 ---
 
 ## What to test
-**Phase 2 (new):**
+**Phase 3 + polish (new):**
+- **Language:** Settings → Language → switch to Deutsch / Français / Español — the whole app re-translates live.
+- **Fonts & icons:** everything should be in the rounded Fredoka font, with clean icons (no UI emojis).
+- **Parent Zone:** Settings → Parent Zone → **press and hold** to enter → toggle "Preview premium" and confirm the 🔒 subjects (Leaf, Ladybug) unlock; try **Delete all data**.
+- **Paywall:** tap a locked subject (Leaf/Ladybug) → paywall → "Start free trial" unlocks (mock).
+
+**Phase 2:**
 - **Draw Something → pick a category → pick a subject → color inside the outline → Done → Score.**
   The full game loop. Try to color it well vs. scribble randomly and confirm the **stars/points differ**.
 - Color It (outline) vs Draw It (guide) toggle; the reference chip.

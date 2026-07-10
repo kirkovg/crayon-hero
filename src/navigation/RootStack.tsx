@@ -5,6 +5,8 @@ import DrawCategoryScreen from '../screens/DrawCategoryScreen';
 import EditorScreen from '../screens/EditorScreen';
 import GalleryScreen from '../screens/GalleryScreen';
 import HomeScreen from '../screens/HomeScreen';
+import ParentZoneScreen from '../screens/ParentZoneScreen';
+import PaywallScreen from '../screens/PaywallScreen';
 import ScoreScreen from '../screens/ScoreScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import SubjectPickerScreen from '../screens/SubjectPickerScreen';
@@ -25,6 +27,8 @@ export default function RootStack() {
       <Stack.Screen name="Gallery" component={GalleryScreen} />
       <Stack.Screen name="ArtworkViewer" component={ArtworkViewerScreen} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
+      <Stack.Screen name="ParentZone" component={ParentZoneScreen} />
+      <Stack.Screen name="Paywall" component={PaywallScreen} options={{ presentation: 'modal' }} />
     </Stack.Navigator>
   );
 }
